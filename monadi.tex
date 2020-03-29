@@ -1,0 +1,49 @@
+\begin{frame}[fragile]
+Una funzione di tipo \h/a -> Maybe b/ è una funzione da \h/a/ a \h/b/ che potrebbe fallire.
+
+\begin{haskellcode}
+head :: List a -> Maybe a
+head Nil = Nothing
+head (Cons x xs) = Just x
+
+getLeft :: Either a b -> Maybe a
+getLeft (Left x) = Just x
+getLeft (Right x) = Nothing
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]
+Vogliamo scrivere una funzione
+
+\begin{haskellcode*}{linenos=false}
+solveQuartic
+    :: Double -> Double -> Double -> Maybe Double
+\end{haskellcode*}
+
+che prende in input tre numeri reali \h/a/, \h/b/, \h/c/ e restituisce una soluzione dell'equazione $\h/a/x^4+\h/b/x^2+\h/c/=0$, in particolare
+\[
+\sqrt{\frac{-\h/b/+\sqrt{\h/b/^2-4\h/a/\h/c/}}{2\h/a/}}.
+\]
+Se $\h/a/=0$ oppure uno dei radicandi è negativo, \h/solveQuartic/ ritornerà \h/Nothing/.
+\end{frame}
+
+\begin{frame}[fragile]
+Supponiamo di avere già implementate le funzioni
+\begin{haskellcode*}{linenos=false}
+sqrt :: Double -> Maybe Double
+reciprocal :: Double -> Maybe Double
+\end{haskellcode*}
+
+\begin{haskellcode}
+solveQuartic
+    :: Double -> Double -> Double -> Maybe Double
+solveQuartic a b c =
+    case sqrt (b ^ 2 - 4 * a * c) of
+        Nothing -> Nothing
+        d -> case reciprocal a of
+            Nothing -> Nothing
+            a' -> case sqrt (a' / 2 * (-b + d)) of
+                Nothing -> Nothing
+                res -> Justr res
+\end{haskellcode}
+\end{frame}

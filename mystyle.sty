@@ -1,0 +1,20 @@
+\ProvidesPackage{mystyle}
+
+
+\usepackage{minted}
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+
+\usepackage{amsmath}
+
+% Haskell source code
+\usemintedstyle{default}
+\newminted{haskell}{linenos}
+\newmint{haskell}{}
+\newmintinline[h]{haskell}{bgcolor={}}
+\newminted[runhaskell]{haskell}{}
+
+% Abstract nonsense
+\newcommand*{\Hask}{\textbf{Hask}}
+\DeclareMathOperator{\Hom}{Hom}
