@@ -15,24 +15,24 @@ getLeft (Right x) = Nothing
 \begin{frame}[fragile]
 Vogliamo scrivere una funzione
 
-\begin{haskellcode*}{linenos=false}
+\begin{haskellcode}
 solveQuartic
     :: Double -> Double -> Double -> Maybe Double
-\end{haskellcode*}
+\end{haskellcode}
 
-che prende in input tre numeri reali \h/a/, \h/b/, \h/c/ e restituisce una soluzione dell'equazione $\h/a/x^4+\h/b/x^2+\h/c/=0$, in particolare
+che prende in input tre numeri reali \h/a/, \h/b/, \h/c/ e restituisce una soluzione reale dell'equazione $\h/a/x^4+\h/b/x^2+\h/c/=0$, in particolare
 \[
 \sqrt{\frac{-\h/b/+\sqrt{\h/b/^2-4\h/a/\h/c/}}{2\h/a/}}.
 \]
-Se $\h/a/=0$ oppure uno dei radicandi è negativo, \h/solveQuartic/ ritornerà \h/Nothing/.
+Se $\h/a/=0$ oppure uno dei radicandi è negativo, \h/solveQuartic/ restituirà \h/Nothing/.
 \end{frame}
 
 \begin{frame}[fragile]
 Supponiamo di avere già implementate le funzioni
-\begin{haskellcode*}{linenos=false}
+\begin{haskellcode}
 sqrt :: Double -> Maybe Double
 reciprocal :: Double -> Maybe Double
-\end{haskellcode*}
+\end{haskellcode}
 
 \begin{haskellcode}
 solveQuartic
@@ -40,10 +40,149 @@ solveQuartic
 solveQuartic a b c =
     case sqrt (b ^ 2 - 4 * a * c) of
         Nothing -> Nothing
-        d -> case reciprocal a of
+        Just d -> case reciprocal (2 * a) of
             Nothing -> Nothing
-            a' -> case sqrt (a' / 2 * (-b + d)) of
-                Nothing -> Nothing
-                res -> Justr res
+            Just a' -> sqrt (a' * (-b + d))
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]
+Problema: due funzioni \h/g :: a -> Maybe b/ e \h/h :: b -> Maybe c/ non si possono comporre.
+
+Soluzione (?): comporre \h/g :: a -> Maybe b/ con \h/map h :: Maybe b -> Maybe (Maybe c)/
+
+Problema: il risultato di \h/map h . g/ è di tipo \h/Maybe (Maybe c)/, mentre noi vorremmo \h/Maybe c/.
+
+Soluzione: monadi!
+\end{frame}
+
+\begin{frame}[fragile]
+Una monade in Haskell è una monade
+\[
+(\h/m/,\h/unit/,\h/join/):\Hask{}\to\Hask{}.
+\]
+\begin{itemize}
+\item \h/m/ è un funtore, dotato di \h/map :: (a -> b) -> m a -> m b/.
+\item \h/unit/ è una funzione \h/:: a -> m a/.
+\item \h/join/ è una funzione \h/:: m (m a) -> m a/.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{haskellcode}
+class Functor m => Monad (m :: * -> *) where
+    unit :: a -> m a
+    join :: m (m a) -> m a
+\end{haskellcode}
+
+Per essere una monade, \h/m/ deve soddisfare (oltre alle proprietà funtoriali):
+\begin{itemize}
+\item per ogni tipo \h/a/,
+\begin{haskellcode}
+join . join == join . map join
+    :: m (m (m a)) -> m a
+\end{haskellcode}
+\begin{diagram}
+\h/m (m (m a))/\rar{\h/map join/}\dar["\h/join/" above]&\h/m (m a)/\dar["\h/join/" above]\\
+\h/m (m a)/\rar{\h/join/}& \h/m a/
+\end{diagram}
+\item per ogni tipo \h/a/,
+\begin{haskellcode}
+join . unit == join . map unit == id
+    :: m a -> m a
+\end{haskellcode}
+\begin{diagram}
+\h/m a/\rar{\h/unit/}\ar[dr,"\h/id/"]&\h/m (m a)/\dar["\h/join/" above]&\h/m a/\lar["\h/map unit/" above]\ar[dl,"\h/id/" above]\\
+&\h/m a/
+\end{diagram}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+Il funtore \h/Maybe/ ha una struttura di monade.
+
+\begin{haskellcode}
+instance Monad Maybe where
+    unit x = Just x
+    join Nothing = Nothing
+    join (Just Nothing) = Nothing
+    join (Just (Just x)) = Just x
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]
+Introduciamo un operatore ausiliario.
+
+\begin{haskellcode}
+(>>=) :: Monad m => m a -> (a -> m b) -> m b
+x >>= g = join (map g x)
+\end{haskellcode}
+
+L'operatore \h/(>>=)/ consente di comporre morfismi nella categoria di Kleisli di \h/m/ (i.e. funzioni \h/:: a -> m b/).
+
+Consideriamo due funzioni \h/g :: a -> m b/, \h/h :: b -> m c/.
+
+\begin{diagram}[column sep = small]
+&\h/m (m b)/\ar[dr,"\h/join/" above]&&\h/m (m c)/\ar[dr,"\h/join/" above]\\
+\h/m a/\ar[rr,"\h/\x -> x >>= g/"]\ar[ru,"\h/map g/" above]\ar[rrrr,"\h/\x -> x >>= g >>= h/" below,out=-15,in=-165]&&\h/m b/\ar[rr,"\h/\x -> x >>= h/"]\ar[ru, "\h/map h/" above]&&\h/m c/
+\end{diagram}
+\end{frame}
+
+\begin{frame}[fragile]
+Nel caso di \h/Maybe/, l'operatore \h/(>>=)/ si comporta come segue.
+\begin{haskellcode}
+(>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
+Nothing >>= g = Nothing
+(Just x) >>= g = g x
+\end{haskellcode}
+\begin{haskellcode}
+solveQuartic
+    :: Double -> Double -> Double -> Maybe Double
+solveQuartic a b c =
+    sqrt (b ^ 2 - 4 * a * c) >>= \d  ->
+    reciprocal (2 * a)       >>= \a' ->
+    sqrt (a' * (-b + d))
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minipage}[t]{0.45\textwidth}
+\begin{haskellcode}
+do  y  <- g x
+    z  <- h x y
+    y' <- g' z
+    unit (y + y')
+\end{haskellcode}
+\end{minipage}
+\begin{minipage}[t]{0.45\textwidth}
+\begin{haskellcode}
+    g x   >>= \y  ->
+    h x y >>= \z  ->
+    g' z  >>= \y' ->
+    unit (y + y')
+\end{haskellcode}
+\end{minipage}
+
+\begin{haskellcode}
+solveQuartic
+    :: Double -> Double -> Double -> Maybe Double
+solveQuartic a b c = do
+    d  <- sqrt (b ^ 2 - 4 * a * c)
+    a' <- reciprocal (2 * a)
+    sqrt (a' * (-b + d))
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]
+Il funtore \h/List/ ha una struttura di monade.
+\begin{haskellcode}
+instance Monad List where
+    unit x = Cons x Nil
+    join Nil = Nil
+    join (Cons l ls) = l ++ join ls
+
+(++) :: List a -> List a -> List a
+Nil ++ l = l
+(Cons x xs) ++ l = Cons x (xs ++ l)
 \end{haskellcode}
 \end{frame}

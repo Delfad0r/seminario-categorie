@@ -7,13 +7,23 @@
 \usepackage[italian]{babel}
 
 \usepackage{amsmath}
+\usepackage{mathtools}
+
+% Diagrams
+% Diagrams
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\tikzcdset{every label/.append style = {font = \scriptsize, sloped}}
+\newenvironment*{diagram}[1][]{\begin{equation*}\begin{tikzcd}[column sep = large,row sep=huge,#1]}{\end{tikzcd}\end{equation*}\ignorespacesafterend}
 
 % Haskell source code
-\usemintedstyle{default}
-\newminted{haskell}{linenos}
+\usemintedstyle{tango} % abap, vs, tango
+\newminted{haskell}{}
 \newmint{haskell}{}
-\newmintinline[h]{haskell}{bgcolor={}}
+\newmintinline[h]{haskell}{}
 \newminted[runhaskell]{haskell}{}
+\BeforeBeginEnvironment{minted}{\vspace{.2cm}}
+\AfterEndEnvironment{minted}{\vspace{.2cm}}
 
 % Abstract nonsense
 \newcommand*{\Hask}{\textbf{Hask}}

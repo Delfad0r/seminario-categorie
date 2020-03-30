@@ -1,13 +1,91 @@
 \section{Preliminari}
 
-\begin{frame}[fragile]{}
-Codice $\h/f/:\Hask\to\Hask$:
-\haskell/f a/
+\begin{frame}[fragile]
+\textbf{Haskell} è un linguaggio di programmazione \textbf{puramente funzionale}:
+\begin{itemize}[<+(1)->]
+\item ha un paradigma basato sulla composizione di funzioni, non sull'esecuzione di istruzioni in sequenza;
+\item le funzioni sono funzioni in senso matematico, a ogni input associano un output (no \emph{side-effects});
+\item gli oggetti sono immutabili.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{itemize}
+\item Ogni oggetto ha un proprio tipo. Scriviamo \h/x :: a/ per indicare che l'oggetto \h/x/ è di tipo \h/a/.
+
+\pause
 
 \begin{haskellcode}
-class Functor (f :: * -> *) where
-    map :: (a -> b) -> f a -> f b}
+7 :: Int
+0.5 :: Double
+True :: Bool
 \end{haskellcode}
 
-Altre parole. Abbiamo un funtore $\textbf{Hask}$
+\item<3-> Le funzioni sono normali oggetti. Una funzione che prende in input un oggetto di tipo \h/a/ e restituisce in output un oggetto di tipo \h/b/ ha tipo \h/a -> b/.
+
+\pause\pause
+
+\begin{haskellcode}
+plusOne :: Int -> Int
+plusOne x = x + 1
+\end{haskellcode}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{itemize}
+\item Ogni funzione prende esattamente un argomento. Per implementare funzioni con più argomenti si sfrutta l'isomorfismo (insiemistico)
+\[
+\Hom(A\times B,C)\simeq\Hom(A,\Hom(B,C)).
+\]
+\pause
+Dunque dati \h/g :: a -> b -> c/, \h/x :: a/, \h/y :: b/ si ha \h/g x :: b -> c/ e \h/g x y :: c/.
+
+\pause
+\begin{haskellcode}
+max :: Int -> Int -> Int
+max x y = if x < y then y else x
+\end{haskellcode}
+
+\pause
+In questo esempio, \h/max 3 :: Int -> Int/ è la funzione che restituisce il massimo fra \h/3/ e l'argomento che riceve in input.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{itemize}
+\item Alcune funzioni possono accettare uno o più argomenti di tipo generico.
+\pause
+
+\begin{haskellcode}
+id :: a -> a
+id x = x
+
+const :: a -> b -> a
+const x y = x
+
+flip :: (a -> b -> c) -> b -> a -> c
+flip g x y = g y x
+\end{haskellcode}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{itemize}
+\item Haskell permette la creazione di funzioni anonime: quello che in notazione matematica si scriverebbe $x\mapsto g(x)$ in Haskell si scrive \h/\x -> g x/.
+
+\pause
+\begin{haskellcode}
+plusOne :: Int -> Int
+plusOne = \x -> x + 1
+
+const :: a -> b -> a
+const x = \y -> x
+
+flip :: (a -> b -> c) -> b -> a -> c
+flip g = \x y -> g y x
+\end{haskellcode}
+\end{itemize}
 \end{frame}

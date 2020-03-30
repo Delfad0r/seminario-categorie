@@ -1,5 +1,5 @@
 \begin{frame}[fragile]
-Un funtore in Haskell è un endofuntore $\h/f/:\Hask\to\Hask$.
+Un funtore in Haskell è un endofuntore $\h/f/:\Hask{}\to\Hask{}$.
 
 \begin{itemize}
 \item A ogni tipo \h/a/ associa un tipo \h/f a/ (i.e. \h/f :: * -> */).
@@ -18,8 +18,13 @@ Per essere un funtore, \h/f/ deve soddisfare:
 \begin{itemize}
 \item per ogni tipo \h/a/,
 \haskell/map (id :: a -> a) == (id :: f a -> f a)/
-\item per ogni \h/g :: a -> b/, \h/h :: b -> c/,
+\item
+per ogni \h/g :: a -> b/, \h/h :: b -> c/,
 \haskell/map (h . g) == map h . map g/
+\begin{diagram}
+\h/f a/\rar{\h/map g/}\ar[dr,"\h/map (h . g)/" below]&\h/f b/\ar[d,"\h/map h/" above]\\
+&\h/f c/
+\end{diagram}
 \end{itemize}
 \end{frame}
 

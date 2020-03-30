@@ -1,0 +1,89 @@
+\begin{frame}[fragile]
+Un programma in Haskell opera dentro la categoria \Hask{}.
+\begin{itemize}[<+(1)->]
+\item Gli oggetti di questa categoria sono i tipi.
+\item Dati due tipi \h/a/, \h/b/, i morfismi $\Hom(\h/a/, \h/b/)$ sono le funzioni \h/:: a -> b/.
+\item Per ogni tipo \h/a/, l'identità è la funzione \h/id = (\x -> x) :: a -> a/.
+\item La composizione di morfismi è esattamente la composizione di funzioni.
+
+\begin{haskellcode}
+(.) :: (b -> c) -> (a -> b) -> a -> c
+h . g = \x -> h (g x)
+\end{haskellcode}
+
+\end{itemize}
+\end{frame} 
+
+\begin{frame}[fragile]
+\begin{overlayarea}{\textwidth}{0.6\textheight}
+Come creare nuovi tipi?
+
+\begin{itemize}
+\item<2-> \haskell/data Bool = False | True/
+
+\begin{onlyenv}<3>
+\vspace{0.2cm}
+\h/Bool/ è un \emph{tipo}, mentre \h/False/ e \h/True/ sono \emph{valori}:
+
+\begin{haskellcode}
+False :: Bool
+True  :: Bool
+\end{haskellcode}
+\end{onlyenv}
+
+\item<4-> \haskell/data Coordinate = Long Double | Lat Double/
+\begin{onlyenv}<5>
+\h/Long/ e \h/Lat/ sono \emph{data constructors}:
+
+\begin{haskellcode}
+Long    :: Double -> Coordinate
+Lat 3.0 :: Coordinate
+\end{haskellcode}
+\end{onlyenv}
+\item<6-> \haskell/data Maybe a = Nothing | Just a/
+\begin{onlyenv}<7>
+\h/Maybe/ è un \emph{type constructor}: prende un tipo \h/a/ e restituisce il tipo \h/Maybe a/. Diciamo che ha \emph{kind} \h/Maybe :: * -> */, laddove i tipi semplici hanno \emph{kind} \h/a :: */.
+
+\begin{haskellcode}
+Nothing :: Maybe a
+Just    :: a -> Maybe a
+Just 3  :: Maybe Int
+\end{haskellcode}
+\end{onlyenv}
+\item<8-> \haskell/data List a = Nil | Cons a (List a)/
+\begin{onlyenv}<9>
+Di nuovo, \h/List :: * -> */ è un costruttore di tipi, mentre ad esempio \h/List Bool :: */ è un tipo.
+
+\begin{haskellcode}
+Nil :: List a
+Cons :: a -> List a -> List a
+Cons 3 Nil :: List Int
+Cons 3 (Cons 1 Nil) :: List Int
+\end{haskellcode}
+\end{onlyenv}
+\begin{onlyenv}<10>
+Utilizzeremo la notazione abbreviata \h/[3, 1]/ in luogo di \h/Cons 3 (Cons 1 Nil)/.
+\end{onlyenv}
+\end{itemize}
+\end{overlayarea}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{itemize}
+\item È facile vedere che \Hask{} ammette prodotti e coprodotti (finiti).
+
+\begin{haskellcode}
+data Pair a b = Pair a b
+data Either a b = Left a | Right b
+\end{haskellcode}
+
+\item \Hask{} ammette un oggetto terminale.
+
+\begin{haskellcode*}{linenos=false}
+data Unit = Unit
+\end{haskellcode*}
+
+\item Esiste anche un oggetto iniziale (\h/Void/), la cui definizione richiede un po' di tecnicismi. Si tratta di fatto del tipo vuoto.
+\end{itemize}
+\end{frame}
