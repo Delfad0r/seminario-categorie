@@ -1,23 +1,32 @@
-\begin{frame}[fragile]
+\section*{Funtori}
+
+\begin{frame}[fragile]{\secname}{Definizione}
 Un funtore in Haskell è un endofuntore $\h/f/:\Hask{}\to\Hask{}$.
 
-\begin{itemize}
+\begin{itemize}[<+(1)->]
 \item A ogni tipo \h/a/ associa un tipo \h/f a/ (i.e. \h/f :: * -> */).
 \item A ogni funzione di tipo \h/a -> b/ associa una funzione di tipo \h/f a -> f b/.
 \item Deve preservare \emph{identità} e \emph{composizione}.
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Definizione}
+
+\begin{overlayarea}{\textwidth}{0.7\textheight}
 \begin{haskellcode}
 class Functor (f :: * -> *) where
     map :: (a -> b) -> f a -> f b
 \end{haskellcode}
 
+\pause
 Per essere un funtore, \h/f/ deve soddisfare:
+\begin{onlyenv}<+(1)>
 \begin{itemize}
 \item per ogni tipo \h/a/,
 \haskell/map (id :: a -> a) == (id :: f a -> f a)/
+\end{itemize}
+\end{onlyenv}
+\begin{itemize}[<+(1)>]
 \item
 per ogni \h/g :: a -> b/, \h/h :: b -> c/,
 \haskell/map (h . g) == map h . map g/
@@ -26,6 +35,7 @@ per ogni \h/g :: a -> b/, \h/h :: b -> c/,
 &\h/f c/
 \end{diagram}
 \end{itemize}
+\end{overlayarea}
 \end{frame}
 
 

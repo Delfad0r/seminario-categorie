@@ -1,6 +1,6 @@
-\section{Preliminari}
+\section{Haskell}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Programmazione funzionale}
 \textbf{Haskell} è un linguaggio di programmazione \textbf{puramente funzionale}:
 \begin{itemize}[<+(1)->]
 \item ha un paradigma basato sulla composizione di funzioni, non sull'esecuzione di istruzioni in sequenza;
@@ -9,7 +9,7 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Oggetti e funzioni}
 \begin{itemize}
 \item Ogni oggetto ha un proprio tipo. Scriviamo \h/x :: a/ per indicare che l'oggetto \h/x/ è di tipo \h/a/.
 
@@ -33,7 +33,7 @@ plusOne x = x + 1
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Currying}
 \begin{itemize}
 \item Ogni funzione prende esattamente un argomento. Per implementare funzioni con più argomenti si sfrutta l'isomorfismo (insiemistico)
 \[
@@ -53,7 +53,7 @@ In questo esempio, \h/max 3 :: Int -> Int/ è la funzione che restituisce il mas
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Funzioni polimorfe}
 \begin{itemize}
 \item Alcune funzioni possono accettare uno o più argomenti di tipo generico.
 \pause
@@ -72,7 +72,7 @@ flip g x y = g y x
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Espressioni lambda}
 \begin{itemize}
 \item Haskell permette la creazione di funzioni anonime: quello che in notazione matematica si scriverebbe $x\mapsto g(x)$ in Haskell si scrive \h/\x -> g x/.
 

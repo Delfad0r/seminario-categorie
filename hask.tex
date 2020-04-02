@@ -1,4 +1,6 @@
-\begin{frame}[fragile]
+\section*{La categoria \protect\Hask{}}
+
+\begin{frame}[fragile]{\secname}{Oggetti e morfismi}
 Un programma in Haskell opera dentro la categoria \Hask{}.
 \begin{itemize}[<+(1)->]
 \item Gli oggetti di questa categoria sono i tipi.
@@ -14,10 +16,8 @@ h . g = \x -> h (g x)
 \end{itemize}
 \end{frame} 
 
-\begin{frame}[fragile]
-\begin{overlayarea}{\textwidth}{0.6\textheight}
-Come creare nuovi tipi?
-
+\begin{frame}[fragile]{\secname}{Come definire nuovi tipi?}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
 \begin{itemize}
 \item<2-> \haskell/data Bool = False | True/
 
@@ -69,7 +69,8 @@ Utilizzeremo la notazione abbreviata \h/[3, 1]/ in luogo di \h/Cons 3 (Cons 1 Ni
 
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Proprietà categoriali}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
 \begin{itemize}
 \item È facile vedere che \Hask{} ammette prodotti e coprodotti (finiti).
 
@@ -78,12 +79,73 @@ data Pair a b = Pair a b
 data Either a b = Left a | Right b
 \end{haskellcode}
 
-\item \Hask{} ammette un oggetto terminale.
+\begin{onlyenv}<2>
+\h/Pair/ e \h/Either/ sono entrambi \emph{type constructor} di \emph{kind} \h/* -> * -> */.
+
+\begin{haskellcode}
+Pair :: a -> b -> Pair a b
+Pair 3 :: b -> Pair Int b
+Pair 3 False :: Pair Int Bool
+Left :: a -> Either a b
+Left 3 :: Either Int b
+Right 3 :: Either a Int
+\end{haskellcode}
+\end{onlyenv}
+
+\item<3-> \Hask{} ammette un oggetto terminale.
 
 \begin{haskellcode*}{linenos=false}
 data Unit = Unit
 \end{haskellcode*}
 
-\item Esiste anche un oggetto iniziale (\h/Void/), la cui definizione richiede un po' di tecnicismi. Si tratta di fatto del tipo vuoto.
+\item<4-> Esiste anche un oggetto iniziale (\h/Void/), la cui definizione richiede un po' di tecnicismi. Si tratta di fatto del tipo vuoto.
 \end{itemize}
+\end{overlayarea}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Pattern matching}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+Come definire funzioni sui tipi composti?
+
+\begin{haskellcode}
+data Maybe a = Nothing | Just a
+data List = Nil | Cons a (List a)
+\end{haskellcode}
+
+\begin{onlyenv}<2-3>
+\begin{haskellcode}
+fromMaybe :: a -> Maybe a -> a
+fromMaybe x Nothing = x
+fromMaybe x (Just y) = y
+\end{haskellcode}
+\end{onlyenv}
+
+\begin{onlyenv}<3>
+\begin{runhaskell}
+>>  fromMaybe 3 Nothing
+<<  3
+>>  fromMaybe 3 (Just 5)
+<<  5
+\end{runhaskell}
+\end{onlyenv}
+
+\begin{onlyenv}<4-5>
+\begin{haskellcode}
+cat :: List a -> List a -> List a
+cat Nil l = l
+cat (Cons x xs) l = Cons x (cat xs l)
+\end{haskellcode}
+\end{onlyenv}
+
+\begin{onlyenv}<5>
+\begin{runhaskell}
+>>  cat [] []
+<<  []
+>>  cat [] [3, 4]
+<<  [3, 4]
+>>  cat [1, 2] [3, 4]
+<<  [1, 2, 3, 4]
+\end{runhaskell}
+\end{onlyenv}
+\end{overlayarea}
 \end{frame}
