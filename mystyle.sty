@@ -9,7 +9,13 @@
 \usepackage{amsmath}
 \usepackage{mathtools}
 
-% Diagrams
+% Beamer
+\usetheme{default}
+\usecolortheme{seahorse}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{navigation symbols}{}
+
+
 % Diagrams
 \usepackage{tikz}
 \usepackage{tikz-cd}
@@ -21,7 +27,8 @@
 \newminted{haskell}{}
 \newmint{haskell}{}
 \newmintinline[h]{haskell}{}
-\newminted[runhaskell]{haskell}{}
+\definecolor{runhaskellbg}{rgb}{0.3,0.3,0.3}
+\newminted[runhaskell]{haskell}{style=fruity,bgcolor=runhaskellbg}
 \BeforeBeginEnvironment{minted}{\vspace{.2cm}}
 \AfterEndEnvironment{minted}{\vspace{.2cm}}
 

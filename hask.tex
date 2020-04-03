@@ -123,9 +123,9 @@ fromMaybe x (Just y) = y
 \begin{onlyenv}<3>
 \begin{runhaskell}
 >>  fromMaybe 3 Nothing
-<<  3
+    3
 >>  fromMaybe 3 (Just 5)
-<<  5
+    5
 \end{runhaskell}
 \end{onlyenv}
 
@@ -140,11 +140,11 @@ cat (Cons x xs) l = Cons x (cat xs l)
 \begin{onlyenv}<5>
 \begin{runhaskell}
 >>  cat [] []
-<<  []
+    []
 >>  cat [] [3, 4]
-<<  [3, 4]
+    [3, 4]
 >>  cat [1, 2] [3, 4]
-<<  [1, 2, 3, 4]
+    [1, 2, 3, 4]
 \end{runhaskell}
 \end{onlyenv}
 \end{overlayarea}
