@@ -7,6 +7,13 @@ import GHC.Show
 class Functor (f :: * -> *) where
     map :: (a -> b) -> f a -> f b
 
+class Functor m => Monad (m :: * -> *) where
+    unit :: a -> m a
+    join :: m (m a) -> m a
+
+(>>=) :: Monad m => m a -> (a -> m b) -> m b
+x >>= g = join (map g x)
+
 
 data Bool = True | False
     deriving Show
@@ -27,6 +34,11 @@ data Pair a b = Pair a b
 instance Functor Maybe where
     map g Nothing = Nothing
     map g (Just x) = Just (g x)
+
+instance Monad Maybe where
+    unit x = Just x
+    join Nothing = Nothing
+    join (Just x) = x
 
 instance Functor List where
     map g Nil = Nil
@@ -59,6 +71,12 @@ flip f x y = f y x
 
 flip' :: (a -> b -> c) -> b -> a -> c
 flip' f = \x y -> f y x
+
+cat :: List a -> List a -> List a
+cat Nil l = l
+cat (Cons x xs) l = Cons x (cat xs l)
+
+
 
 
 

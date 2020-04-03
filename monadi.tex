@@ -1,5 +1,8 @@
-\begin{frame}[fragile]
-Una funzione di tipo \h/a -> Maybe b/ è una funzione da \h/a/ a \h/b/ che potrebbe fallire.
+\section*{Monadi}
+
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
+Una funzione di tipo \h/a -> Maybe b/ è concettualmente una funzione da \h/a/ a \h/b/ che potrebbe fallire.
+\pause
 
 \begin{haskellcode}
 head :: List a -> Maybe a
@@ -12,7 +15,7 @@ getLeft (Right x) = Nothing
 \end{haskellcode}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
 Vogliamo scrivere una funzione
 
 \begin{haskellcode}
@@ -24,16 +27,22 @@ che prende in input tre numeri reali \h/a/, \h/b/, \h/c/ e restituisce una soluz
 \[
 \sqrt{\frac{-\h/b/+\sqrt{\h/b/^2-4\h/a/\h/c/}}{2\h/a/}}.
 \]
+\pause
 Se $\h/a/=0$ oppure uno dei radicandi è negativo, \h/solveQuartic/ restituirà \h/Nothing/.
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
 Supponiamo di avere già implementate le funzioni
+
 \begin{haskellcode}
 sqrt :: Double -> Maybe Double
 reciprocal :: Double -> Maybe Double
 \end{haskellcode}
+\pause
 
+Allora possiamo scrivere
+
+\pause
 \begin{haskellcode}
 solveQuartic
     :: Double -> Double -> Double -> Maybe Double
@@ -46,36 +55,48 @@ solveQuartic a b c =
 \end{haskellcode}
 \end{frame}
 
-\begin{frame}[fragile]
-Problema: due funzioni \h/g :: a -> Maybe b/ e \h/h :: b -> Maybe c/ non si possono comporre.
-
-Soluzione (?): comporre \h/g :: a -> Maybe b/ con \h/map h :: Maybe b -> Maybe (Maybe c)/
-
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
+\begin{block}{Problema}
+Due funzioni \h/g :: a -> Maybe b/ e \h/h :: b -> Maybe c/ non si possono comporre.
+\end{block}
+\pause
+\begin{block}{Soluzione?}
+Comporre \h/g :: a -> Maybe b/ con \h/map h :: Maybe b -> Maybe (Maybe c)/
+\end{block}
+\pause
+\begin{block}{Problema!}
 Problema: il risultato di \h/map h . g/ è di tipo \h/Maybe (Maybe c)/, mentre noi vorremmo \h/Maybe c/.
-
-Soluzione: monadi!
+\end{block}
+\pause
+\begin{block}{Soluzione!}
+Monadi!
+\end{block}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Definizione}
 Una monade in Haskell è una monade
 \[
 (\h/m/,\h/unit/,\h/join/):\Hask{}\to\Hask{}.
 \]
-\begin{itemize}
+\vspace{-0.5cm}
+\begin{itemize}[<+(1)->]
 \item \h/m/ è un funtore, dotato di \h/map :: (a -> b) -> m a -> m b/.
 \item \h/unit/ è una funzione \h/:: a -> m a/.
 \item \h/join/ è una funzione \h/:: m (m a) -> m a/.
 \end{itemize}
-\end{frame}
+\pause
 
-\begin{frame}[fragile]
 \begin{haskellcode}
 class Functor m => Monad (m :: * -> *) where
     unit :: a -> m a
     join :: m (m a) -> m a
 \end{haskellcode}
+\end{frame}
 
+\begin{frame}[fragile]{\secname}{Definizione}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
 Per essere una monade, \h/m/ deve soddisfare (oltre alle proprietà funtoriali):
+\begin{onlyenv}<+(1)>
 \begin{itemize}
 \item per ogni tipo \h/a/,
 \begin{haskellcode}
@@ -86,6 +107,10 @@ join . join == join . map join
 \h/m (m (m a))/\rar{\h/map join/}\dar["\h/join/" above]&\h/m (m a)/\dar["\h/join/" above]\\
 \h/m (m a)/\rar{\h/join/}& \h/m a/
 \end{diagram}
+\end{itemize}
+\end{onlyenv}
+\begin{onlyenv}<+(1)>
+\begin{itemize}
 \item per ogni tipo \h/a/,
 \begin{haskellcode}
 join . unit == join . map unit == id
@@ -96,45 +121,88 @@ join . unit == join . map unit == id
 &\h/m a/
 \end{diagram}
 \end{itemize}
+\end{onlyenv}
+\end{overlayarea}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{La monade \h/Maybe/}
 Il funtore \h/Maybe/ ha una struttura di monade.
+\pause
 
 \begin{haskellcode}
 instance Monad Maybe where
     unit x = Just x
     join Nothing = Nothing
-    join (Just Nothing) = Nothing
-    join (Just (Just x)) = Just x
+    join (Just x) = x
 \end{haskellcode}
+
+\begin{runhaskell}
+>>  join Nothing
+    Nothing
+>>  join (Just Nothing)
+    Nothing
+>>  join (Just (Just 3))
+    Just 3
+\end{runhaskell}
 \end{frame}
 
-\begin{frame}[fragile]
-Introduciamo un operatore ausiliario.
-
+\begin{frame}[fragile]{\secname}{L'operatore \h/(>==)/}
 \begin{haskellcode}
 (>>=) :: Monad m => m a -> (a -> m b) -> m b
 x >>= g = join (map g x)
 \end{haskellcode}
 
+\pause
 L'operatore \h/(>>=)/ consente di comporre morfismi nella categoria di Kleisli di \h/m/ (i.e. funzioni \h/:: a -> m b/).
 
+\pause
 Consideriamo due funzioni \h/g :: a -> m b/, \h/h :: b -> m c/.
-
+\pause
 \begin{diagram}[column sep = small]
 &\h/m (m b)/\ar[dr,"\h/join/" above]&&\h/m (m c)/\ar[dr,"\h/join/" above]\\
 \h/m a/\ar[rr,"\h/\x -> x >>= g/"]\ar[ru,"\h/map g/" above]\ar[rrrr,"\h/\x -> x >>= g >>= h/" below,out=-15,in=-165]&&\h/m b/\ar[rr,"\h/\x -> x >>= h/"]\ar[ru, "\h/map h/" above]&&\h/m c/
 \end{diagram}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{L'operatore \h/(>==)/}
 Nel caso di \h/Maybe/, l'operatore \h/(>>=)/ si comporta come segue.
+
+\pause
 \begin{haskellcode}
 (>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
 Nothing >>= g = Nothing
 (Just x) >>= g = g x
 \end{haskellcode}
+
+\pause
+\begin{minipage}[t]{0.58\textwidth}
+\begin{runhaskell}
+>>  let g x = head x >>= head
+>>  head []
+    Nothing
+>>  head [[], [1]]
+    Just []
+>>  head [[1], []]
+    Just [1]
+\end{runhaskell}
+\end{minipage}
+\hfill\begin{minipage}[t]{0.38\textwidth}
+\begin{runhaskell}
+>>
+>>  g []
+    Nothing
+>>  g [[], [1]]
+    Nothing
+>>  g [[1], []
+    Just 1
+\end{runhaskell}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Esempio motivazionale, parte 2}
+Possiamo ora scrivere la funzione \h/solveQuartic/ in modo più conciso.
+\pause
+
 \begin{haskellcode}
 solveQuartic
     :: Double -> Double -> Double -> Maybe Double
@@ -145,16 +213,10 @@ solveQuartic a b c =
 \end{haskellcode}
 \end{frame}
 
-\begin{frame}[fragile]
-\begin{minipage}[t]{0.45\textwidth}
-\begin{haskellcode}
-do  y  <- g x
-    z  <- h x y
-    y' <- g' z
-    unit (y + y')
-\end{haskellcode}
-\end{minipage}
-\begin{minipage}[t]{0.45\textwidth}
+\begin{frame}[fragile]{\secname}{Esempio motivazionale, parte 2}
+\begin{block}{\emph{Do notation}}
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{-0.3cm}
 \begin{haskellcode}
     g x   >>= \y  ->
     h x y >>= \z  ->
@@ -162,6 +224,21 @@ do  y  <- g x
     unit (y + y')
 \end{haskellcode}
 \end{minipage}
+\hfill\pause
+\begin{minipage}[t]{0.48\textwidth}
+\vspace{-0.3cm}
+\begin{haskellcode}
+do  y  <- g x
+    z  <- h x y
+    y' <- g' z
+    unit (y + y')
+\end{haskellcode}
+\end{minipage}
+\end{block}
+\pause
+
+Con la \emph{do notation}, la funzione \h/solveQuartic/ assume la sua forma definitiva.
+\pause
 
 \begin{haskellcode}
 solveQuartic
@@ -173,16 +250,98 @@ solveQuartic a b c = do
 \end{haskellcode}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{La monade \h/List/}
 Il funtore \h/List/ ha una struttura di monade.
+\pause
+
 \begin{haskellcode}
 instance Monad List where
-    unit x = Cons x Nil
+    unit x = [x]
     join Nil = Nil
-    join (Cons l ls) = l ++ join ls
-
-(++) :: List a -> List a -> List a
-Nil ++ l = l
-(Cons x xs) ++ l = Cons x (xs ++ l)
+    join (Cons l ls) = cat l (join ls)
 \end{haskellcode}
+\pause
+
+\begin{runhaskell}
+>>  unit True
+    [True]
+>>  join [[1, 2], [], [2, 3]]
+    [1, 2, 2, 3]
+>>  [1, 2] >>= \x -> [x, -x]
+    [1, -1, 2, -2]
+\end{runhaskell}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Versatilità}
+
+Una funzione di tipo \h/a -> List b/ è concettualmente una \emph{multi-valued function} da \h/a/ a \h/b/.
+\pause
+
+\begin{haskellcode}
+sqrt' :: Double -> List Double
+sqrt' x = case sqrt x of
+    Nothing -> []
+    Just y  -> [y, -y]
+
+reciprocal' :: Double -> List Double
+reciprocal' x = case reciprocal x of
+    Nothing -> []
+    Just y  -> [y]
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Versatilità}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+Supponiamo ora di voler modificare \h/solveQuartic/ in modo che restituisca tutte le soluzioni (reali).
+
+\begin{onlyenv}<2-3>
+\begin{block}{Codice vecchio}
+\begin{haskellcode}
+solveQuartic
+    :: Double -> Double -> Double -> Maybe Double
+solveQuartic  a b c = do
+    d  <- sqrt  (b ^ 2 - 4 * a * c)
+    a' <- reciprocal  (2 * a)
+    sqrt  (a' * (-b + d))
+\end{haskellcode}
+
+\begin{onlyenv}<3>
+\begin{runhaskell}
+>>  solveQuartic 1 (-1) 1
+    Nothing
+>>  solveQuartic 1 (-3) 1
+    Just 1.618
+\end{runhaskell}
+\end{onlyenv}
+\end{block}
+\end{onlyenv}
+
+\begin{onlyenv}<4-6>
+\begin{block}{Codice nuovo}
+\begin{haskellcode}
+solveQuartic'
+    :: Double -> Double -> Double -> List Double
+solveQuartic' a b c = do
+    d  <- sqrt' (b ^ 2 - 4 * a * c)
+    a' <- reciprocal' (2 * a)
+    sqrt' (a' * (-b + d))
+\end{haskellcode}
+
+\begin{onlyenv}<5>
+\begin{runhaskell}
+>>  solveQuartic' 1 (-1) 1
+    []
+>>  solveQuartic' 1 (-3) 1
+    [1.618, -1.618, 0.618, -0.618]
+\end{runhaskell}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{runhaskell}
+>>  solveQuartic' 1 0 (-1)
+    [1.0, -1.0]
+\end{runhaskell}
+\end{onlyenv}
+\end{block}
+\end{onlyenv}
+\end{overlayarea}
 \end{frame}

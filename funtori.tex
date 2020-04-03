@@ -39,12 +39,13 @@ per ogni \h/g :: a -> b/, \h/h :: b -> c/,
 \end{frame}
 
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Il funtore \h/Maybe/}
 Il costruttore di tipi \h/Maybe/ è un funtore:
-\begin{itemize}
+\begin{itemize}[<+(1)->]
 \item ad ogni tipo \h/a/ associa il tipo \h/Maybe a/;
 \item ad ogni funzione \h/g :: a -> b/ associa la funzione \h/map g :: Maybe a -> Maybe b/.
 \end{itemize}
+\pause
 
 \begin{haskellcode}
 instance Functor Maybe where
@@ -53,12 +54,13 @@ instance Functor Maybe where
 \end{haskellcode}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Il funtore \h/List/}
 Il costruttore di tipi \h/List/ è un funtore:
-\begin{itemize}
+\begin{itemize}[<+(1)->]
 \item ad ogni tipo \h/a/ associa il tipo \h/List a/;
 \item ad ogni funzione \h/g :: a -> b/ associa la funzione \h/map g :: List a -> List b/, che applica \h/g/ ad ogni elemento della lista in input.
 \end{itemize}
+\pause
 
 \begin{haskellcode}
 instance Functor List where
@@ -68,12 +70,14 @@ instance Functor List where
 \end{frame}
 
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Il funtore \h/Either a/}
 Il costruttore di tipi \h/Either/ ha \emph{kind} \h/Either :: * -> * -> */, dunque non può essere un funtore. Tuttavia per ogni tipo \h/a/ il costruttore di tipi \h/Either a :: * -> */ è un funtore:
-\begin{itemize}
+
+\begin{itemize}[<+(1)->]
 \item ad ogni tipo \h/b/ associa il tipo \h/Either a b/;
 \item ad ogni funzione \h/g :: b -> c/ associa la funzione \h/map g :: Either a b -> Either a c/.
 \end{itemize}
+\pause
 
 \begin{haskellcode}
 instance Functor (Either a) where
@@ -83,12 +87,13 @@ instance Functor (Either a) where
 \end{frame}
 
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{\secname}{Il funtore \h/(->) a/}
 Il costruttore di tipi \h/(->) :: * -> * -> */ svolge il ruolo del funtore $\Hom(-,-)$. Per ogni tipo \h/a/ il costruttore di tipi \h/(->) a :: * -> */ è un funtore:
-\begin{itemize}
+\begin{itemize}[<+(1)->]
 \item ad ogni tipo \h/b/ associa il tipo \h/a -> b/;
 \item ad ogni funzione \h/g :: b -> c/ associa la funzione \h/map g :: (a -> b) -> (a -> c)/, che è semplicemente la composizione con \h/g/.
 \end{itemize}
+\pause
 
 \begin{haskellcode}
 instance Functor ((->) a) where
