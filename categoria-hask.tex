@@ -1,0 +1,218 @@
+\section*{La categoria \protect\Hask{}}
+
+\begin{frame}[fragile]{\secname}{Oggetti e morfismi}
+Un programma in Haskell opera dentro la categoria \Hask{}.
+\begin{itemize}[<+(1)->]
+\item Gli oggetti di questa categoria sono i tipi.
+\item Dati due tipi \h/a/, \h/b/, i morfismi $\Hom(\h/a/, \h/b/)$ sono le funzioni \h/:: a -> b/.
+\item Per ogni tipo \h/a/, l'identità è la funzione \h/id = (\x -> x) :: a -> a/.
+\item La composizione di morfismi è esattamente la composizione di funzioni.
+
+\begin{haskellcode}
+(.) :: (b -> c) -> (a -> b) -> (a -> c)
+h . g = \x -> h (g x)
+\end{haskellcode}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Proprietà categoriali}
+\begin{itemize}[<+->]
+\item \Hask{} ammette prodotti e coprodotti (finiti).
+
+\begin{haskellcode}
+data Pair a b = Pair a b
+data Either a b = Left a | Right b
+\end{haskellcode}
+
+\item \Hask{} ammette un oggetto terminale.
+
+\begin{haskellcode}
+data Unit = Unit
+\end{haskellcode}
+
+\item Esiste anche un oggetto iniziale (\h/Void/), la cui definizione richiede un po' di tecnicismi. Si tratta di fatto del tipo vuoto.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Funtori}
+Un funtore in Haskell è un endofuntore $\h/f/:\Hask{}\to\Hask{}$.
+
+\begin{itemize}[<+(1)->]
+\item A ogni tipo \h/a/ associa un tipo \h/f a/.
+\item A ogni funzione di tipo \h/a -> b/ associa una funzione di tipo \h/f a -> f b/.
+\item Deve preservare \emph{identità} e \emph{composizione}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Funtori}
+
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+\begin{haskellcode}
+class Functor (f :: * -> *) where
+    map :: (a -> b) -> (f a -> f b)
+\end{haskellcode}
+
+\pause
+Per essere un funtore, \h/f/ deve soddisfare:
+\begin{onlyenv}<+(1)>
+\begin{itemize}
+\item per ogni tipo \h/a/,
+\haskell/map (id :: a -> a) == (id :: f a -> f a)/
+\end{itemize}
+\end{onlyenv}
+\begin{itemize}[<+(1)>]
+\item
+per ogni \h/g :: a -> b/, \h/h :: b -> c/,
+\haskell/map (h . g) == map h . map g/
+\begin{diagram}
+\h/f a/\rar{\h/map g/}\ar[dr,"\h/map (h . g)/" below]&\h/f b/\ar[d,"\h/map h/" above]\\
+&\h/f c/
+\end{diagram}
+\end{itemize}
+\end{overlayarea}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Il funtore \h/Maybe/}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+\begin{haskellcode}
+data Maybe a = Nothing | Just a
+
+instance Functor Maybe where
+    map g Nothing = Nothing
+    map g (Just x) = Just (g x)
+\end{haskellcode}
+
+\begin{onlyenv}<2-4>
+Un oggetto di tipo \h/Maybe a/ è una scatola che può:
+\pause
+\begin{itemize}[<+(1)->]
+\item essere vuota, nel qual caso si indica con \h/Nothing/;
+\item contenere un oggetto \h/x :: a/, nel qual caso si indica con \h/Just x/.
+\end{itemize}
+\end{onlyenv}
+
+\begin{onlyenv}<5-7>
+\h/Maybe/ è un funtore.
+\pause
+\begin{itemize}
+\item<+(1)-> A ogni tipo \h/a/ associa il tipo \h/Maybe a/.
+\item<+(1)-> A ogni funzione \h/g :: a -> b/ associa la funzione \h/map g :: Maybe a -> Maybe b/, la quale:
+\begin{itemize}
+\item manda \h/Nothing/ in \h/Nothing/;
+\item manda \h/Just x/ in \h/Just (g x)/.
+\end{itemize}
+\end{itemize}
+\end{onlyenv}
+
+\begin{onlyenv}<8>
+\begin{runhaskell}
+>>  map (\x -> x + 1) Nothing
+    Nothing
+>>  map (\x -> x + 1) (Just 3)
+    Just 4
+>>  map (const True) (Just 3)
+    Just True
+\end{runhaskell}
+\end{onlyenv}
+\end{overlayarea}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Il funtore \h/List/}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+\begin{haskellcode}
+data List a = Nil | Cons a (List a)
+
+instance Functor List where
+    map g Nil = Nil
+    map g (Cons x xs) = Cons (g x) (map g xs)
+\end{haskellcode}
+
+\begin{onlyenv}<2-5>
+Il tipo \h/List a/ è definito ricorsivamente. Una lista può:
+\pause
+\begin{itemize}[<+(1)->]
+\item essere vuota, nel qual caso si indica con \h/Nil/;
+\item iniziare con un oggetto \h/x :: a/ seguito dal resto della lista \h/xs :: List a/, nel qual caso si indica con \h/Cons x xs/.
+\end{itemize}
+\pause
+Useremo la notazione abbreviata \h/[1, 2, 3]/ in luogo di
+\h/Cons 1 (Cons 2 (Cons 3 Nil))/.
+\end{onlyenv}
+
+\begin{onlyenv}<6-8>
+\h/List/ è un funtore.
+\pause
+\begin{itemize}[<+(1)->]
+\item A ogni tipo \h/a/ associa il tipo \h/List a/.
+\item A ogni funzione \h/g :: a -> b/ associa la funzione \h/map g :: List a -> List b/, che applica \h/g/ a ogni elemento della lista in input.
+\end{itemize}
+\end{onlyenv}
+
+\begin{onlyenv}<9>
+\begin{runhaskell}
+>>  map (\x -> x + 1) []
+    []
+>>  map (\x -> x + 1) [1, 2, 3]
+    [2, 3, 4]
+>>  map (const True) [1, 2, 3]
+    [True, True, True]
+\end{runhaskell}
+\end{onlyenv}
+\end{overlayarea}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Il funtore \h/(->) a/}
+\begin{haskellcode}
+instance Functor ((->) a) where
+    map g h = g . h
+\end{haskellcode}
+\pause
+
+Per ogni tipo \h/a/, \h/(->) a/ è un funtore (concettualmente, si tratta del funtore $\Hom(\h/a/,-)$).
+\begin{itemize}[<+(1)->]
+\item A ogni tipo \h/b/ associa il tipo \h/a -> b/.
+\item A ogni funzione \h/g :: b -> c/ associa la funzione \h/map g :: (a -> b) -> (a -> c)/, che è semplicemente la composizione con \h/g/.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Trasformazioni naturali}
+\begin{itemize}[<+->]
+\item Dati due funtori \h/f/, \h/f'/, una trasformazione naturale da \h/f/ a \h/f'/ è il dato di una funzione \h/g :: f a -> f' a/ per ogni tipo \h/a/.
+\item In altre parole, è una funzione polimorfa.
+\item Teoremi profondi garantiscono che ogni funzione polimorfa soddisfa automaticamente le condizioni di naturalità.
+\begin{diagram}
+\h/f a/\rar{\h/g/}\dar["\h/map h/" above]&\h/f' a/\dar["\h/map h/" above]\\
+\h/f b/\rar{\h/g/}&\h/f' b/
+\end{diagram}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Trasformazioni naturali}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+\begin{haskellcode}
+head :: List a -> Maybe a
+head Nil = Nothing
+head (Cons x xs) = Just x
+\end{haskellcode}
+
+\begin{onlyenv}<2>
+Possiamo verificare che \h/head/ è naturale, cioè
+\haskell/map h . head = head . map h/
+per ogni \h/h :: a -> b/.
+\end{onlyenv}
+
+\begin{onlyenv}<3>
+\begin{runhaskell}
+>>  let h = \x -> x + 1
+>>  (map h . head) []
+    Nothing
+>>  (head . map h) []
+    Nothing
+>>  (map h . head) [1, 3, 5]
+    Just 2
+>>  (head . map h) [1, 3, 5]
+    Just 2
+\end{runhaskell}
+\end{onlyenv}
+\end{overlayarea}
+\end{frame}

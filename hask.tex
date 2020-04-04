@@ -36,8 +36,11 @@ True  :: Bool
 \h/Long/ e \h/Lat/ sono \emph{data constructors}:
 
 \begin{haskellcode}
-Long    :: Double -> Coordinate
-Lat 3.0 :: Coordinate
+Long 1.5 :: Coordinate
+Lat 3.0  :: Coordinate
+
+Long :: Double -> Coordinate
+Lat  :: Double -> Coordinate
 \end{haskellcode}
 \end{onlyenv}
 \item<6-> \haskell/data Maybe a = Nothing | Just a/
@@ -46,8 +49,9 @@ Lat 3.0 :: Coordinate
 
 \begin{haskellcode}
 Nothing :: Maybe a
-Just    :: a -> Maybe a
 Just 3  :: Maybe Int
+
+Just :: a -> Maybe a
 \end{haskellcode}
 \end{onlyenv}
 \item<8-> \haskell/data List a = Nil | Cons a (List a)/
@@ -55,10 +59,11 @@ Just 3  :: Maybe Int
 Di nuovo, \h/List :: * -> */ è un costruttore di tipi, mentre ad esempio \h/List Bool :: */ è un tipo.
 
 \begin{haskellcode}
-Nil :: List a
-Cons :: a -> List a -> List a
-Cons 3 Nil :: List Int
+Nil                 :: List a
+Cons 3 Nil          :: List Int
 Cons 3 (Cons 1 Nil) :: List Int
+
+Cons :: a -> List a -> List a
 \end{haskellcode}
 \end{onlyenv}
 \begin{onlyenv}<10>

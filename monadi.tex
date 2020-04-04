@@ -3,16 +3,14 @@
 \begin{frame}[fragile]{\secname}{Esempio motivazionale}
 Una funzione di tipo \h/a -> Maybe b/ è concettualmente una funzione da \h/a/ a \h/b/ che potrebbe fallire.
 \pause
-
-\begin{haskellcode}
-head :: List a -> Maybe a
-head Nil = Nothing
-head (Cons x xs) = Just x
-
-getLeft :: Either a b -> Maybe a
-getLeft (Left x) = Just x
-getLeft (Right x) = Nothing
-\end{haskellcode}
+\begin{itemize}[<+->]
+\item \h/head :: List a - Maybe a/\\
+Restituisce il primo elemento della lista, fallisce se la lista è vuota.
+\item \h/sqrt :: Double -> Maybe double/\\
+Restituisce la radice quadrata, fallisce se l'argomento è negativo.
+\item \h/reciprocal :: Double -> Maybe Double/\\
+Restituisce il reciproco, fallisce se l'argomento è nullo.
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{\secname}{Esempio motivazionale}
@@ -32,17 +30,7 @@ Se $\h/a/=0$ oppure uno dei radicandi è negativo, \h/solveQuartic/ restituirà 
 \end{frame}
 
 \begin{frame}[fragile]{\secname}{Esempio motivazionale}
-Supponiamo di avere già implementate le funzioni
-
-\begin{haskellcode}
-sqrt :: Double -> Maybe Double
-reciprocal :: Double -> Maybe Double
-\end{haskellcode}
-\pause
-
-Allora possiamo scrivere
-
-\pause
+\begin{block}{Primo tentativo}
 \begin{haskellcode}
 solveQuartic
     :: Double -> Double -> Double -> Maybe Double
@@ -53,6 +41,10 @@ solveQuartic a b c =
             Nothing -> Nothing
             Just a' -> sqrt (a' * (-b + d))
 \end{haskellcode}
+\pause
+
+Il codice sembra ridondante (per ogni funzione, deve assicurarsi che non sia fallita).
+\end{block}
 \end{frame}
 
 \begin{frame}[fragile]{\secname}{Esempio motivazionale}
@@ -316,7 +308,7 @@ solveQuartic  a b c = do
 \end{block}
 \end{onlyenv}
 
-\begin{onlyenv}<4-6>
+\begin{onlyenv}<4-5>
 \begin{block}{Codice nuovo}
 \begin{haskellcode}
 solveQuartic'
@@ -333,12 +325,6 @@ solveQuartic' a b c = do
     []
 >>  solveQuartic' 1 (-3) 1
     [1.618, -1.618, 0.618, -0.618]
-\end{runhaskell}
-\end{onlyenv}
-\begin{onlyenv}<6>
-\begin{runhaskell}
->>  solveQuartic' 1 0 (-1)
-    [1.0, -1.0]
 \end{runhaskell}
 \end{onlyenv}
 \end{block}
