@@ -124,7 +124,7 @@ data List a = Nil | Cons a (List a)
 
 instance Functor List where
     map g Nil = Nil
-    map g (Cons x xs) = Cons (g x) (map g xs)
+    map g (Cons x l) = Cons (g x) (map g l)
 \end{haskellcode}
 
 \begin{onlyenv}<2-5>
@@ -132,7 +132,7 @@ Il tipo \h/List a/ è definito ricorsivamente. Una lista può:
 \pause
 \begin{itemize}[<+(1)->]
 \item essere vuota, nel qual caso si indica con \h/Nil/;
-\item iniziare con un oggetto \h/x :: a/ seguito dal resto della lista \h/xs :: List a/, nel qual caso si indica con \h/Cons x xs/.
+\item iniziare con un oggetto \h/x :: a/ seguito dal resto della lista \h/l :: List a/, nel qual caso si indica con \h/Cons x l/.
 \end{itemize}
 \pause
 Useremo la notazione abbreviata \h/[1, 2, 3]/ in luogo di

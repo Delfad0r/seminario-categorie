@@ -4,9 +4,9 @@
 Una funzione di tipo \h/a -> Maybe b/ è concettualmente una funzione da \h/a/ a \h/b/ che potrebbe fallire.
 \pause
 \begin{itemize}[<+->]
-\item \h/head :: List a - Maybe a/\\
+\item \h/head :: List a -> Maybe a/\\
 Restituisce il primo elemento della lista, fallisce se la lista è vuota.
-\item \h/sqrt :: Double -> Maybe double/\\
+\item \h/sqrt :: Double -> Maybe Double/\\
 Restituisce la radice quadrata, fallisce se l'argomento è negativo.
 \item \h/reciprocal :: Double -> Maybe Double/\\
 Restituisce il reciproco, fallisce se l'argomento è nullo.
@@ -127,7 +127,7 @@ instance Monad Maybe where
     join Nothing = Nothing
     join (Just x) = x
 \end{haskellcode}
-
+\pause 
 \begin{runhaskell}
 >>  join Nothing
     Nothing
@@ -250,7 +250,7 @@ Il funtore \h/List/ ha una struttura di monade.
 instance Monad List where
     unit x = [x]
     join Nil = Nil
-    join (Cons l ls) = cat l (join ls)
+    join (Cons l ls) = l ++ (join ls)
 \end{haskellcode}
 \pause
 
