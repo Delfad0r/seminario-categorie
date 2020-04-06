@@ -14,6 +14,9 @@ class Functor m => Monad (m :: * -> *) where
 (>>=) :: Monad m => m a -> (a -> m b) -> m b
 x >>= g = join (map g x)
 
+(<=<) :: Monad m => (b -> m c) -> (a -> m b) -> (a -> m c)
+h <=< g = join . map h . g
+
 
 data Bool = True | False
     deriving Show
@@ -72,9 +75,9 @@ flip f x y = f y x
 flip' :: (a -> b -> c) -> b -> a -> c
 flip' f = \x y -> f y x
 
-cat :: List a -> List a -> List a
-cat Nil l = l
-cat (Cons x xs) l = Cons x (cat xs l)
+(++) :: List a -> List a -> List a
+Nil ++ l = l
+(Cons x xs) ++ l = Cons x (xs ++ l)
 
 
 

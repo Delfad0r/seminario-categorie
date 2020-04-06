@@ -1,12 +1,20 @@
 \documentclass{beamer}
 \usepackage{mystyle}
 
-%\includeonly{monadi}
+
+\title{Haskell}
+\subtitle{Sull'utilità delle monadi}
+\author{Filippo Baroni}
+\institute{\epigraph{\scriptsize \textit{\enquote{A monad is a monoid in the category of endofunctors, what's the problem?}}}{\scriptsize Philip Wadler}}
+
+%\includeonly{}
 \begin{document}
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \setminted{bgcolor=bg}
 
-\include{preliminari}
+\frame{\titlepage}
+
+%\include{preliminari}
 \include{categoria-hask}
-\include{monadi}
+\include{monadi2}
 \end{document}

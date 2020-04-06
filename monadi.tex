@@ -124,7 +124,7 @@ Il funtore \h/Maybe/ ha una struttura di monade.
 \begin{haskellcode}
 instance Monad Maybe where
     unit x = Just x
-    join Nothing = Nothing
+    join Nothing  = Nothing
     join (Just x) = x
 \end{haskellcode}
 \pause 
@@ -138,7 +138,7 @@ instance Monad Maybe where
 \end{runhaskell}
 \end{frame}
 
-\begin{frame}[fragile]{\secname}{L'operatore \h/(>==)/}
+\begin{frame}[fragile]{\secname}{L'operatore \h/(>>=)/}
 \begin{haskellcode}
 (>>=) :: Monad m => m a -> (a -> m b) -> m b
 x >>= g = join (map g x)
@@ -156,42 +156,17 @@ Consideriamo due funzioni \h/g :: a -> m b/, \h/h :: b -> m c/.
 \end{diagram}
 \end{frame}
 
-\begin{frame}[fragile]{\secname}{L'operatore \h/(>==)/}
+\begin{frame}[fragile]{\secname}{L'operatore \h/(>>=)/}
 Nel caso di \h/Maybe/, l'operatore \h/(>>=)/ si comporta come segue.
 
 \pause
 \begin{haskellcode}
 (>>=) :: Maybe a -> (a -> Maybe b) -> Maybe b
-Nothing >>= g = Nothing
+Nothing  >>= g = Nothing
 (Just x) >>= g = g x
 \end{haskellcode}
 
 \pause
-\begin{minipage}[t]{0.58\textwidth}
-\begin{runhaskell}
->>  let g x = head x >>= head
->>  head []
-    Nothing
->>  head [[], [1]]
-    Just []
->>  head [[1], []]
-    Just [1]
-\end{runhaskell}
-\end{minipage}
-\hfill\begin{minipage}[t]{0.38\textwidth}
-\begin{runhaskell}
->>
->>  g []
-    Nothing
->>  g [[], [1]]
-    Nothing
->>  g [[1], []
-    Just 1
-\end{runhaskell}
-\end{minipage}
-\end{frame}
-
-\begin{frame}[fragile]{\secname}{Esempio motivazionale, parte 2}
 Possiamo ora scrivere la funzione \h/solveQuartic/ in modo più conciso.
 \pause
 
@@ -242,6 +217,23 @@ solveQuartic a b c = do
 \end{haskellcode}
 \end{frame}
 
+\begin{frame}[fragile]{\secname}{Versatilità}
+Una funzione di tipo \h/a -> List b/ è concettualmente una \emph{multi-valued function} da \h/a/ a \h/b/.
+\pause
+
+\begin{haskellcode}
+sqrt' :: Double -> List Double
+sqrt' x = case sqrt x of
+    Nothing -> []
+    Just y  -> [y, -y]
+
+reciprocal' :: Double -> List Double
+reciprocal' x = case reciprocal x of
+    Nothing -> []
+    Just y  -> [y]
+\end{haskellcode}
+\end{frame}
+
 \begin{frame}[fragile]{\secname}{La monade \h/List/}
 Il funtore \h/List/ ha una struttura di monade.
 \pause
@@ -262,24 +254,6 @@ instance Monad List where
 >>  [1, 2] >>= \x -> [x, -x]
     [1, -1, 2, -2]
 \end{runhaskell}
-\end{frame}
-
-\begin{frame}[fragile]{\secname}{Versatilità}
-
-Una funzione di tipo \h/a -> List b/ è concettualmente una \emph{multi-valued function} da \h/a/ a \h/b/.
-\pause
-
-\begin{haskellcode}
-sqrt' :: Double -> List Double
-sqrt' x = case sqrt x of
-    Nothing -> []
-    Just y  -> [y, -y]
-
-reciprocal' :: Double -> List Double
-reciprocal' x = case reciprocal x of
-    Nothing -> []
-    Just y  -> [y]
-\end{haskellcode}
 \end{frame}
 
 \begin{frame}[fragile]{\secname}{Versatilità}

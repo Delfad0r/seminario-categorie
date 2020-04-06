@@ -1,0 +1,275 @@
+\section*{Monadi}
+
+\begin{frame}[fragile]{\secname}{Funzioni con contesto}
+Molto spesso, funzioni di tipo \h/a -> f b/ possono essere interpretate come ``funzioni'' \h/:: a -> b/ con qualche proprietà.
+\pause
+\begin{itemize}[<+->]
+\item Funzioni \h/:: a -> Maybe b/ sono concettualmente funzioni che possono fallire. Ad esempio,
+\haskell/head :: List a -> Maybe a/
+restituisce il primo elemento della lista, ma fallisce se la lista è vuota.
+\item Funzioni \h/:: a -> List b/ sono concettualmente \emph{multi-valued functions}. Ad esempio,
+\haskell/sqrt :: Double -> List Double/
+restituisce 0, 1 o 2 valori a seconda del segno dell'input.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
+Supponiamo di avere due funzioni
+
+\begin{haskellcode}
+father :: String -> Maybe String
+mother :: String -> Maybe String
+\end{haskellcode}
+\pause
+
+\begin{runhaskell}
+>>  mother "Sansa"
+    Just "Catelyn"
+>>  father "Sansa"
+    Just "Eddard"
+>>  mother "Eddard"
+    Nothing
+\end{runhaskell}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
+Vogliamo scrivere una funzione
+
+\begin{haskellcode}
+maternalGF :: String -> Maybe String
+\end{haskellcode}
+
+che restituisce il nonno materno.
+\pause
+\begin{block}{Implementazione}
+\begin{haskellcode}
+maternalGF x = case mother x of
+    Nothing -> Nothing
+    Just mx -> father mx
+\end{haskellcode}
+\end{block}
+\pause
+
+\begin{runhaskell}
+>>  maternalGF "Sansa"
+    Just "Hoster"
+>>  maternalGF "Eddard"
+    Nothing
+\end{runhaskell}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
+\begin{block}{Problema}
+Questo metodo diventa impraticabile al crescere della complessità.
+\pause
+
+\begin{haskellcode}
+maternalGGGF :: String -> Maybe String
+maternalGGGF x = case mother x of
+    Nothing -> Nothing
+    Just mx -> case father mx of
+        Nothing  -> Nothing
+        Just fmx -> case father fmx of
+            Nothing   -> Nothing
+            Just ffmx -> father ffmx
+\end{haskellcode}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Esempio motivazionale}
+\begin{block}{Problema}
+Il problema nasce dall'impossibilità di comporre due funzioni di tipo \h/String -> Maybe String/.
+\end{block}
+\pause
+\begin{block}{Soluzione?}
+Comporre \h/map father :: Maybe String -> Maybe (Maybe String)/ con \h/mother :: String -> Maybe String/.
+\end{block}
+\pause
+\begin{block}{Problema!}
+La composizione \h/map father . mother/ restituisce un \h/Maybe (Maybe String)/, invece che \h/Maybe String/.
+\end{block}
+\pause
+\begin{block}{Soluzione!}
+Monadi!
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Definizione}
+Una monade in Haskell è una monade
+\[
+(\h/m/,\h/unit/,\h/join/):\Hask{}\to\Hask{}.
+\]
+\vspace{-0.5cm}
+\begin{itemize}[<+(1)->]
+\item \h/m/ è un funtore, dotato di \h/map :: (a -> b) -> m a -> m b/.
+\item \h/unit/ è una funzione \h/:: a -> m a/.
+\item \h/join/ è una funzione \h/:: m (m a) -> m a/.
+\end{itemize}
+\pause
+
+\begin{haskellcode}
+class Functor m => Monad (m :: * -> *) where
+    unit :: a -> m a
+    join :: m (m a) -> m a
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Definizione}
+\begin{overlayarea}{\textwidth}{0.7\textheight}
+Per essere una monade, \h/m/ deve soddisfare (oltre alle proprietà funtoriali):
+\begin{onlyenv}<+(1)>
+\begin{itemize}
+\item per ogni tipo \h/a/,
+\begin{haskellcode}
+join . join == join . map join
+    :: m (m (m a)) -> m a
+\end{haskellcode}
+\begin{diagram}
+\h/m (m (m a))/\rar{\h/map join/}\dar["\h/join/" above]&\h/m (m a)/\dar["\h/join/" above]\\
+\h/m (m a)/\rar{\h/join/}& \h/m a/
+\end{diagram}
+\end{itemize}
+\end{onlyenv}
+\begin{onlyenv}<+(1)>
+\begin{itemize}
+\item per ogni tipo \h/a/,
+\begin{haskellcode}
+join . unit == join . map unit == id
+    :: m a -> m a
+\end{haskellcode}
+\begin{diagram}
+\h/m a/\rar{\h/unit/}\ar[dr,"\h/id/"]&\h/m (m a)/\dar["\h/join/" above]&\h/m a/\lar["\h/map unit/" above]\ar[dl,"\h/id/" above]\\
+&\h/m a/
+\end{diagram}
+\end{itemize}
+\end{onlyenv}
+\end{overlayarea}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{La monade \h/Maybe/}
+Il funtore \h/Maybe/ ha una struttura di monade.
+\pause
+
+\begin{haskellcode}
+instance Monad Maybe where
+    unit x = Just x
+    join Nothing  = Nothing
+    join (Just x) = x
+\end{haskellcode}
+\pause 
+\begin{runhaskell}
+>>  join Nothing
+    Nothing
+>>  join (Just Nothing)
+    Nothing
+>>  join (Just (Just "Rickard"))
+    Just "Rickard"
+\end{runhaskell}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{La categoria di Kleisli}
+Funzioni di tipo \h/a -> m b/ si possono comporre mediante l'operatore di Kleisli.
+\pause
+
+\begin{haskellcode}
+(<=<) :: Monad m =>
+    (b -> m c) -> (a -> m b) -> (a -> m c)
+h <=< g = join . map h . g
+\end{haskellcode}
+\pause
+
+L'implementazione di \h/maternalGF/ è ora immediata.
+
+\begin{haskellcode}
+maternalGF :: String -> Maybe String
+maternalGF = father <=< mother
+\end{haskellcode}
+\pause
+
+E anche:
+
+\begin{haskellcode}
+maternalGGGF :: String -> Maybe String
+maternalGGGF =
+    father <=< father <=< father <=< mother
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{La monade \h/List/}
+Spostiamoci ora nel contesto delle \emph{multi-valued functions}, i.e. funzioni \h/:: a -> List b/.
+\begin{itemize}
+\item<2-> Supponiamo di avere una funzione
+\haskell/children :: String -> List String/
+
+\begin{onslide}<3->
+\begin{runhaskell}
+>>  children "Steffon"
+    ["Robert", "Stannis", "Renly"]
+>>  children "Renly"
+    []
+\end{runhaskell}
+\end{onslide}
+\item<4> Vogliamo scrivere
+\haskell/grandchildren :: String -> List String/
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{La monade \h/List/}
+Il funtore \h/List/ ha una struttura di monade.
+\pause
+
+\begin{haskellcode}
+instance Monad List where
+    unit x = [x]
+    join Nil = Nil
+    join (Cons l ls) = l ++ (join ls)
+\end{haskellcode}
+\pause
+
+\begin{runhaskell}
+>>  unit "Renly"
+    ["Renly"]
+>>  join [[1, 2], [], [2, 3]]
+    [1, 2, 2, 3]
+\end{runhaskell}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{La monade \h/List/}
+Avendo dato una struttura di monade al funtore \h/List/, è automaticamente definita la composizione di Kleisli \h/(<=<)/.
+\pause
+
+\begin{runhaskell}
+>>  let g = \x -> [x, x + 1, x + 2]
+>>  let h = \x -> [x, -x]
+>>  g 1
+    [1, 2, 3]
+>>  (map h . g) 1
+    [[1, -1], [2, -2], [3, -3]]
+>>  (h <=< g) 1
+    [1, -1, 2, -2, 3, -3]
+\end{runhaskell}
+\pause
+
+Allora possiamo semplicemente definire
+
+\begin{haskellcode}
+grandChildren :: String -> List String
+grandChildren = children <=< children
+\end{haskellcode}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Conclusione}
+Le monadi consentono di comporre funzioni ``con contesto'':
+\begin{itemize}[<+(1)->]
+\item possibilità di fallimento (\h/Maybe/ o \h/Either String/);
+\item non-determinismo (\h/List/);
+\item operazioni con stato (\h/State s/);
+\item parsing (\h/Parser/);
+\item logging (\h/Writer/);
+\item interazioni con il mondo esterno (\h/IO/).
+\end{itemize}
+\pause
+\begin{block}{Morale}
+In questi (e molti altri) contesti, l'ambiente giusto in cui lavorare sono le categorie di Kleisli.
+\end{block}
+\end{frame}

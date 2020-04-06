@@ -16,9 +16,10 @@
 \pause
 
 \begin{haskellcode}
-7 :: Int
-0.5 :: Double
-True :: Bool
+7        :: Int
+0.5      :: Double
+True     :: Bool
+"Yoneda" :: String
 \end{haskellcode}
 
 \item<3-> Le funzioni sono normali oggetti. Una funzione che prende in input un oggetto di tipo \h/a/ e restituisce in output un oggetto di tipo \h/b/ ha tipo \h/a -> b/.
@@ -55,7 +56,7 @@ In questo esempio, \h/max 3 :: Int -> Int/ è la funzione che restituisce il mas
 
 \begin{frame}[fragile]{\secname}{Funzioni polimorfe}
 \begin{itemize}
-\item Alcune funzioni possono accettare uno o più argomenti di tipo generico.
+\item Alcune funzioni possono accettare uno o più argomenti di tipo generico (indicato con una lettera minuscola, e.g. \h/a/).
 \pause
 
 \begin{haskellcode}

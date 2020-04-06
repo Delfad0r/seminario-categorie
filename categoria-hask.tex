@@ -34,7 +34,9 @@ data Unit = Unit
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\secname}{Funtori}
+\section*{Funtori}
+
+\begin{frame}[fragile]{\secname}{Definizione}
 Un funtore in Haskell è un endofuntore $\h/f/:\Hask{}\to\Hask{}$.
 
 \begin{itemize}[<+(1)->]
@@ -44,7 +46,7 @@ Un funtore in Haskell è un endofuntore $\h/f/:\Hask{}\to\Hask{}$.
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\secname}{Funtori}
+\begin{frame}[fragile]{\secname}{Definizione}
 
 \begin{overlayarea}{\textwidth}{0.7\textheight}
 \begin{haskellcode}
@@ -110,7 +112,7 @@ Un oggetto di tipo \h/Maybe a/ è una scatola che può:
     Nothing
 >>  map (\x -> x + 1) (Just 3)
     Just 4
->>  map (const True) (Just 3)
+>>  map (\x -> True) (Just 3)
     Just True
 \end{runhaskell}
 \end{onlyenv}
@@ -154,7 +156,7 @@ Useremo la notazione abbreviata \h/[1, 2, 3]/ in luogo di
     []
 >>  map (\x -> x + 1) [1, 2, 3]
     [2, 3, 4]
->>  map (const True) [1, 2, 3]
+>>  map (\x -> True) [1, 2, 3]
     [True, True, True]
 \end{runhaskell}
 \end{onlyenv}
@@ -175,7 +177,9 @@ Per ogni tipo \h/a/, \h/(->) a/ è un funtore (concettualmente, si tratta del fu
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\secname}{Trasformazioni naturali}
+\section*{Trasformazioni naturali}
+
+\begin{frame}[fragile]{\secname}{Funzioni polimorfe}
 \begin{itemize}[<+->]
 \item Dati due funtori \h/f/, \h/f'/, una trasformazione naturale da \h/f/ a \h/f'/ è il dato di una funzione \h/g :: f a -> f' a/ per ogni tipo \h/a/.
 \item In altre parole, è una funzione polimorfa.
@@ -187,7 +191,7 @@ Per ogni tipo \h/a/, \h/(->) a/ è un funtore (concettualmente, si tratta del fu
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{\secname}{Trasformazioni naturali}
+\begin{frame}[fragile]{\secname}{Funzioni polimorfe}
 \begin{overlayarea}{\textwidth}{0.7\textheight}
 \begin{haskellcode}
 head :: List a -> Maybe a
@@ -215,4 +219,17 @@ per ogni \h/h :: a -> b/.
 \end{runhaskell}
 \end{onlyenv}
 \end{overlayarea}
+\end{frame}
+
+\begin{frame}[fragile]{\secname}{Lemma di Yoneda}
+\begin{block}{Lemma di Yoneda in \Hask{}}
+Sia $\h/a/\in\Hask{}$ un tipo, $\h/f/:\Hask{}\to\Hask{}$ un funtore. Allora esiste una corrispondenza biunivoca fra \h/f a/ e le trasformazioni naturali $\h/(->) a/\Rightarrow\h/f/$:
+\[
+\h/(a -> b) -> f b/\simeq\h/f a/
+\]
+\end{block}
+\pause
+\begin{block}{Corollario}
+Ogni funzione \h/:: (a -> b) -> f a/ è necessariamente della forma \h/\g -> map g x/ per un qualche \h/x :: f a/.
+\end{block}
 \end{frame}
